@@ -29,6 +29,14 @@
                 android:name="io.flutter.embedding.android.EnableImpeller"
                 android:value="false" />
 
+            <!-- Prefer SurfaceView over TextureView.
+                 This is a manifest-level hint supported by many Flutter embedding v2
+                 versions and avoids relying on RenderMode APIs that may not exist in
+                 the current dependency set. -->
+            <meta-data
+                android:name="io.flutter.embedding.android.UseSurfaceView"
+                android:value="true" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
