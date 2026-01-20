@@ -55,10 +55,16 @@ class TvFocusable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Shortcuts apply within this widget subtree.
+    // FocusableActionDetector no longer supports a `builder` parameter in the
+    // Flutter version used by this project. Instead, we track focus changes and
+    // rebuild the highlight UI accordingly.
+    final ValueNotifier<bool> hasFocus = ValueNotifier<bool>(focusNode.hasFocus);
+
     return FocusableActionDetector(
       focusNode: focusNode,
       autofocus: autofocus,
+      onShowFocusHighlight: (bool value) => hasFocus.value = value,
+      onFocusChange: (bool value) => hasFocus.value = value,
       shortcuts: const <ShortcutActivator, Intent>{
         // Android TV DPAD_CENTER is typically sent as "select"/enter on Flutter;
         // support both Enter and Select for robustness.
@@ -74,37 +80,37 @@ class TvFocusable extends StatelessWidget {
           },
         ),
       },
-      builder: (BuildContext context, FocusNode node, Widget? _) {
-        final bool focused = node.hasFocus;
-
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              width: 3,
-              color: focused
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.transparent,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: hasFocus,
+        builder: (BuildContext context, bool focused, Widget? _) {
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                width: 3,
+                color: focused
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.transparent,
+              ),
+              boxShadow: focused
+                  ? <BoxShadow>[
+                      BoxShadow(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withAlpha(90),
+                        blurRadius: 16,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : const <BoxShadow>[],
             ),
-            boxShadow: focused
-                ? <BoxShadow>[
-                    BoxShadow(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withAlpha(90),
-                      blurRadius: 16,
-                      spreadRadius: 1,
-                    ),
-                  ]
-                : const <BoxShadow>[],
-          ),
-          child: child,
-        );
-      },
-      child: child,
+            child: child,
+          );
+        },
+      ),
     );
   }
 }
