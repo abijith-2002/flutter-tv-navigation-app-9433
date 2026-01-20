@@ -1,20 +1,18 @@
 package com.example.android_tv_flutter_frontend
 
-import android.content.Context
 import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.android.FlutterSurfaceView
 
+/**
+ * MainActivity for the Android TV Flutter app.
+ *
+ * Forces SurfaceView rendering (instead of TextureView) to improve compatibility with
+ * some Android TV emulators/devices where GL/EGL support is incomplete and can lead
+ * to a persistent white screen.
+ */
 class MainActivity : FlutterActivity() {
 
-  /**
-   * Force SurfaceView rendering for better compatibility with certain Android TV
-   * emulator/device EGL/GLES implementations that can fail with TextureView.
-   *
-   * This avoids using FlutterActivity.RenderMode / getRenderMode(), which is not
-   * available in some Flutter embedding versions (and was causing compilation failures).
-   */
-  override fun provideFlutterSurfaceView(context: Context): FlutterSurfaceView {
-    // Keeping the default settings; we only want to ensure SurfaceView is used.
-    return FlutterSurfaceView(context)
+  override fun getRenderMode(): RenderMode {
+    // Force SurfaceView.
+    return RenderMode.surface
   }
 }
